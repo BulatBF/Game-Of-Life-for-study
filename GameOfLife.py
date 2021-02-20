@@ -15,7 +15,9 @@ class World:
     dead_symbols = "\N{MEDIUM WHITE CIRCLE}"
     states = 2
     cells = np.zeros(shape=size)
-    iteration = 0
+    iterations = -1
+    alives_cells = 0
+    dead_cells = 0
 
     def __init__(self, width, height):
         self.width = width
@@ -23,6 +25,8 @@ class World:
         self.cells = np.random.randint(
             low=0, high=self.states, size=(self.width, self.height)
         )
+        self.world_size = self.height * self.width
+        self.update_metadata()
 
     def __repr__(self):
         cells_repr = " " + str(self.cells).replace("[", "").replace("]", "")
@@ -53,10 +57,15 @@ class World:
                 for y in range(0, self.height):
                     new_cells[x][y] = self.check_rule(x, y)
             self.cells = deepcopy(new_cells)
-            self.iteration += 1
+        self.update_metadata()
         del new_cells
 
-    def get_data(self):
+    def update_metadata(self):
+        self.iterations += 1
+        self.alives_cells = np.count_nonzero(self.cells)
+        self.dead_cells = self.world_size - self.alives_cells
+
+    def get_info(self):
         """
         get_data [summary]
         Размеры мира
@@ -64,16 +73,12 @@ class World:
         Число живых
         Число мертвых
         """
-        print(f"Размеры мира:{self.height*self.width} ")
-        print(f"Текущее поколение:{self.iteration} ")
-        print(f"Число живых:{self.height*self.width-np.count_nonzero(self.cells)} ")
-        print(
-            f"Число мертвых:{self.height*self.width-(self.height*self.width-np.count_nonzero(self.cells))}"
-        )
+        info = f"{self.world_size=}\n{self.iterations=}\n{self.alives_cells=}\n{self.dead_cells=}"
+        return info
 
 
 my_world = World(30, 30)
 print(my_world)
 my_world.evolv()
 print(my_world)
-my_world.get_data()
+print(my_world.get_info())
